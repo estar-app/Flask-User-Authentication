@@ -1,8 +1,12 @@
 from datetime import datetime
 
+
 from flask_login import UserMixin
 
 from src import bcrypt, db
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+
+
 
 
 class User(UserMixin, db.Model):
@@ -25,9 +29,20 @@ class User(UserMixin, db.Model):
         return f"<email {self.email}>"
 
 
+# Define the Message model
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user_message = db.Column(db.String(1000))
+    bot_response = db.Column(db.String(1000))
     text = db.Column(db.String(255))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    content = Column(String(255), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"Message(id={self.id}, user_message={self.user_message}, bot_response={self.bot_response})"
+
+
 
 

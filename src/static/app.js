@@ -132,3 +132,4 @@ startRecordingButton.addEventListener('click', () => {
   recognition.start();
 });
 
+

@@ -75,7 +75,7 @@
                             {% endif %}
                           </div>
                           <div class="message-content">
-                            <div class="username">{% if message.user %}{{ message.user.username }}{% else %}Chatbot{% endif %}</div>
+                            <div class="username">{% if message.user %}{{ message.user.username }}{% else %}{% endif %}</div>
                             <p>{{ message.content }}</p>
                           </div>
                         </div>
@@ -120,28 +120,7 @@
                   
                   
   
-<script>
-  $(document).ready(function() {
-  $.get("/chat_history", function(data) {
-      // populate chat history using response data
-      // for example, you could loop through each message in the response data
-      // and append it to the chat history section of your HTML
-  });
-});
 
-fetch('/chat', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ message: message, chat_history: chat_history })
-})
-  .then(response => response.json())
-  .then(data => {
-    console.log('Received response:', data);
-    // handle the response data here
-  });
-</script>
 
 
                 </ul>

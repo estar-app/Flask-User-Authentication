@@ -12,10 +12,13 @@ import speech_recognition as sr
 from flask import Flask, render_template, request, jsonify, Response, redirect, url_for,  render_template_string, send_file
 from flask_cors import CORS
 from gtts import gTTS
+from flask import session
 
 
 from flask import Blueprint
 from flask_login import login_required
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import current_user
 
 
 
@@ -25,13 +28,21 @@ core_bp = Blueprint("core", __name__)
 # Create a Flask application
 app = Flask(__name__)
 
+db = SQLAlchemy()
+db.init_app(app)
 
 
+
+
+from src.accounts.models import Message
 
 @core_bp.route("/")
 @login_required
-def home():
-    return render_template("core/index.html")
+def home():  
+    user_id = current_user.id
+    
+    messages = Message.query.filter_by(user_id=user_id).all()
+    return render_template("core/index.html", user_id=user_id, messages=messages)
 
 
 @core_bp.route('/profile', methods=['GET', 'POST'])
@@ -65,6 +76,10 @@ def examples():
 @core_bp.route('/talkgpt')
 @login_required
 def talkgpt():
+    # Retrieve all chat messages from the database
+    messages = Message.query.order_by(Message.created_at.asc()).all()
+    chat_history = [{"id": m.id, "content": m.content} for m in messages]
+
     completion = openai.ChatCompletion.create(
         model=MODEL,
         max_tokens=3000,
@@ -74,12 +89,17 @@ def talkgpt():
         messages=[{"role": "user", "content": "Hello!"}]
     )
     response = (completion.choices[0].message)
-    return render_template("core/talkgpt.html", response=response)
+    return render_template("core/talkgpt.html", response=response, chat_history=chat_history)
 
-def generate_response(prompt):
+def generate_response(prompt, user_id):
+    user = User.query.get(user_id)
+    message = Message(user_id=user.id, user_message=prompt, created_at=datetime.utcnow())
+    db.session.add(message)
+    db.session.commit()
+
     response = openai.ChatCompletion.create(
-    model=MODEL,
-    messages=[
+        model=MODEL,
+        messages=[
             {"role": "user", "content": prompt}
         ],
         temperature=0.5,
@@ -87,15 +107,28 @@ def generate_response(prompt):
         n=1,
         stop=None,
     )
-    return response.choices[0].message.content
-    return response
+
+    bot_response = response.choices[0].text
+    message.bot_response = bot_response
+    message.content = bot_response
+    message.timestamp = datetime.utcnow()
+    db.session.commit()
+
+    return bot_response
 
 
 @core_bp.route("/send_message", methods=["POST"])
 def send_message():
     message = request.json["message"]
-    response = generate_response(message)
-    return jsonify({"message": response})
+    user_id = session.get("user_id")
+    response = generate_response(message, user_id)
+    
+    # Retrieve all chat messages from the database
+    messages = Message.query.order_by(Message.created_at.asc()).all()
+    chat_history = [{"id": m.id, "content": m.content} for m in messages]
+    
+    return jsonify({"message": response, "chat_history": chat_history})
+
 
 
 def stream_response(prompt):
@@ -195,22 +228,53 @@ def recognize_speech_from_mic():
 
 
 @core_bp.route('/mobile')
+@login_required
 def mobile():
     
     return render_template("core/mobile.html")
 
 @core_bp.route('/editor')
+@login_required
 def editor():
     return render_template('core/editor.html')
 
 
 @core_bp.route('/image_generator')
+@login_required
 def image_generator():
     return render_template('core/image_generator.html')
 
 
 @core_bp.route('/coder')
+@login_required
 def coder():
     return render_template('core/coder.html')
 
+@core_bp.route('/get_messages')
+def get_messages():
+    # get page number from request parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+
+    # query chat history from database
+    messages = Message.query.order_by(Message.timestamp.desc()).paginate(page, per_page)
+
+    # format chat history as list of dictionaries
+    messages_list = []
+    for message in messages.items:
+        messages_list.append({
+            'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'user': message.user,
+            'message': message.message
+        })
+
+    # create dictionary response
+    response = {
+        'messages': messages_list,
+        'prev_page': url_for('get_messages', page=messages.prev_num) if messages.has_prev else None,
+        'next_page': url_for('get_messages', page=messages.next_num) if messages.has_next else None
+    }
+
+    # return JSON response
+    return jsonify(response)
 
