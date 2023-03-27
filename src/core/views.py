@@ -12,16 +12,20 @@ import speech_recognition as sr
 from flask import Flask, render_template, request, jsonify, Response, redirect, url_for,  render_template_string, send_file
 from flask_cors import CORS
 from gtts import gTTS
-
+from flask import Blueprint
 
 from flask import Blueprint
 from flask_login import login_required
 
 
-openai.api_key = "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"
 
 
 core_bp = Blueprint("core", __name__)
+
+# Create a Flask application
+app = Flask(__name__)
+
+
 
 
 @core_bp.route("/")

@@ -52,14 +52,74 @@
 <body>
 
             <div class="chat-header">
-                <h1>Solomon Fractal</h1> <button id="start-recording-btn">Use Voice Recorder</button>
+                <h1>TalkGPT</h1> <button id="start-recording-btn">Use Voice Recorder</button>
             </div>
             <div class="chat-messages">
                 <p>If you would like to help fund Wiztech's hosting and further development costs, <a href="https://paystack.com/pay/wiztech" target="_blank"> please donate here</a>.  And for equity investment, please contact us at wiztech@gf4n.xyz.</p>
 
+                 
+
+                <ul id="messages">
+                 
 
 
-                <ul id="messages"></ul>
+ 
+  <div class="chat-history">
+    {% for message in chat_history %}
+      <div class="message {% if message.user %}user{% else %}chatbot{% endif %}">
+        <div class="avatar">
+          {% if message.user %}
+            <img src="{{ message.user.profile_picture }}" alt="{{ message.user.username }} profile picture">
+          {% else %}
+            <img src="{{ url_for('static', filename='chatbot-icon.png') }}" alt="Chatbot icon">
+          {% endif %}
+        </div>
+        <div class="message-content">
+          <div class="username">{% if message.user %}{{ message.user.username }}{% else %}t{% endif %}</div>
+          <p>{{ message.content }}</p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+
+
+  <style>
+    .message {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .avatar {
+      margin-right: 10px;
+    }
+
+    .message-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .username {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .user .username {
+      color: blue;
+    }
+
+    .chatbot .username {
+      color: red;
+    }
+  </style>
+
+
+                </ul>
 
                 <!-- Facebook Share Button -->
 <div class="fb-share-button" data-href="{{ url }}" data-layout="button" data-size="small">
