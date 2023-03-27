@@ -12,7 +12,7 @@ import speech_recognition as sr
 from flask import Flask, render_template, request, jsonify, Response, redirect, url_for,  render_template_string, send_file
 from flask_cors import CORS
 from gtts import gTTS
-from flask import Blueprint
+
 
 from flask import Blueprint
 from flask_login import login_required
@@ -74,7 +74,7 @@ def talkgpt():
         messages=[{"role": "user", "content": "Hello!"}]
     )
     response = (completion.choices[0].message)
-    return render_template("core/mobile.html", response=response)
+    return render_template("core/talkgpt.html", response=response)
 
 def generate_response(prompt):
     response = openai.ChatCompletion.create(
@@ -150,7 +150,7 @@ def get_audio():
     filepath = os.path.join(app.static_folder, 'audio', filename)
     tts = gTTS(text=text)
     tts.save(filepath)
-    return {'audio_file_path': f'/static/audio/{filename}'}
+    return {'audio_file_path': f'audio/{filename}'}
 
 @core_bp.route("/play-audio", methods=["POST"])
 def play_audio():
@@ -194,7 +194,23 @@ def recognize_speech_from_mic():
 
 
 
+@core_bp.route('/mobile')
+def mobile():
+    
+    return render_template("core/mobile.html")
+
+@core_bp.route('/editor')
+def editor():
+    return render_template('core/editor.html')
 
 
+@core_bp.route('/image_generator')
+def image_generator():
+    return render_template('core/image_generator.html')
+
+
+@core_bp.route('/coder')
+def coder():
+    return render_template('core/coder.html')
 
 

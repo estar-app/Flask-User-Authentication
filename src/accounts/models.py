@@ -23,3 +23,11 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return f"<email {self.email}>"
+
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(255))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+
