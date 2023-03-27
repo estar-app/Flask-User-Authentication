@@ -1,6 +1,294 @@
 {% extends "_base.html" %}
 {% block content %}
 
-<h1 class="text-center">Welcome {{current_user.email}}!</h1>
+<h1 class="text-center">Welcome! </h1>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+	<title>Wiz Apps</title>
+    <style>
+     /* Global styles */
+    body {
+      background-color: #05706b;
+      font-family: Arial, sans-serif;
+      height: 100%; /* Set the body height to 100% */
+    }
+
+    /* Header styles */
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    /* Card container styles */
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px;
+      overflow: auto;
+    }
+
+    /* Card styles */
+    .card {
+      flex-direction: column;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+      margin: 20px;
+      max-width: 300px;
+      height: 400px;
+      padding: 20px;
+      cursor: pointer;
+      text-align: center;
+      overflow-y: auto;
+      align-items: center;
+    }
+
+    .card:hover {
+       background-color: lightgreen;
+    }
+
+    .card h3 {
+		font-size: 1.5rem;
+		margin: 0.5rem 0;
+		text-align: center;
+	}
+
+    .card p {
+	    font-size: 1rem;
+		margin: 0.5rem 0;
+		text-align: center;
+		max-height: 150px;
+    }
+
+    .card img {
+		object-fit: cover;
+		width: 100%;
+		height: 100%;
+	}
+
+    /* Media queries */
+    @media screen and (max-width: 768px) {
+      .card-container {
+        margin: 10px;
+      }
+
+      .card {
+        margin: 10px;
+      }
+
+
+    /* Styles for the footer */
+    .footer {
+       background-color: #222;
+       color: #fff;
+       padding: 5px;
+       text-align: center; /* Center the copyright notice */
+       bottom: 0; /* Set the footer to the bottom of the page */
+       width: 100%; /* Set the width of the footer to 100% */
+       flex-shrink: 0;
+       position: fixed;
+    }
+
+   .page /
+        width: 100%; / Set the width of the footer to 100% */
+    }
+
+    .footer span {
+        font-weight: bold; /* Make the company name bold */
+    }
+  </style>
+</head>
+<body>
+	<h1>Wiz Apps</h1>
+
+    <div><!-- Facebook Share Button -->
+<div class="fb-share-button" data-href="{{ url }}" data-layout="button" data-size="small">
+    <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u={{ url }}" class="fb-xfbml-parse-ignore">Share</a>
+</div>
+
+<!-- Load the Facebook SDK -->
+<script>
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId: '{{ app_id }}',
+            xfbml: true,
+            version: 'v12.0'
+        });
+    };
+
+    (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+</script>
+    </div>
+
+
+	<div class="card-container">
+
+	<div class="card" onclick="window.location.href='/examples'">
+		<h3>Query Examples</h3>
+		<img src="/static/images/chatbot-icon2.png" alt="Option 1 Image">
+		<p>We’re excited to have you onboard as a user.</p>
+		<p>To help you get started, we’ve created a helpful guide for using the WizApp suite. To get started, simply click on the card to get example queries.</p>
+	</div>
+	<div class="card" onclick="window.location.href='/oracle'">
+		<h3>Oracle</h3>
+		<img src="/static/images/crown-queen.png" alt="Option 1 Image">
+		<p>Hello there, this is the most powerful and most deterministic model</p>
+        <p>Today, we are proud to introduce Oracle, a revolutionary productivity app powered by Artificial Intelligence and Natural Language Processing technologies. Oracle boosts your productivity by using OPENAI's advanced neural network models to understand and complete tasks for you.</p>
+        <p>With Oracle, you can automate tedious tasks such as managing emails or creating spreadsheets, giving you more time to focus on other projects. Oracle also monitors your productivity to identify areas of improvement, giving you an edge in your work.</p>
+        <p>The intuitive interface of Oracle makes it easy to use, and you can even integrate it with existing workflow and project management systems. Its powerful AI databases provide you with related search content that is more accurate, saving you time and money.</p>
+        <p>We are confident that you will find Oracle to be a great addition to your productivity toolbox. Give it a try today, and experience how Artificial Intelligence can increase your productivity and open up more possibilities for your projects.</p>
+        <p>Click anywhere on the card to consult the Oracle</p>
+	</div>
+	<div class="card" onclick="window.location.href='/mobile'">
+		<h3>Mobile Version</h3>
+		<img src="/static/images/elephant.png" alt="Option 1 Image">
+		<p>Meet with Solomon, a fractal of the Oracle; and you're bound to learn wisdom using mobile devices.</p>
+		<p>Solomon is a AI assistant built using the latest OPENAI Models technology for mobile devices.</p>
+		<p>Solomon is an incredible resource for problem solving, providing automated assistance for all kinds of queries.</p>
+		<p>He is capable of understanding your questions and responding with accurate answers. </p>
+		<p>Solomon can answer anything from simple questions to more difficult inquiries. He is designed to provide the same accuracy as the popular OPENAI Chatgpt system with a friendly, personal touch.</p>
+		<p>With Solomon at your side, you'll never find yourself short of answers.</p>
+		<p>Click anywhere on the card to consult with Wiz Solomon</p>
+	</div>
+	<div class="card" onclick="window.location.href='/coder'">
+		<h3>Coder</h3>
+		<img src="/static/images/fractal.png" alt="Option 1 Image">
+		<p>Use AI to generate code for your projects in real time.</p>
+		<p>OpenAI Codex is an open-source library built in collaboration with Microsoft that helps developers with code generation, correction and completion tasks. The library consists of a set of pre-trained models and code snippets that are powered by natural language processing (NLP).</p>
+		<p>To further help developers with their tasks, we are providing a Code Generator built with OPENAI Codex. This code generator helps developers create, validate and update code with ease. The code generator is simple to use and can generate code quickly. </p>
+		<p>It also offers code completion and correction features. The generated code is well-structured and ready-to-use.</p>
+		<p>We hope that this Code Generator built with OPENAI Codex will help developers save time and improve their code-writing productivity.</p>
+		<p>Click anywhere on the card to use Coder</p>
+	</div>
+		<div class="card" onclick="window.location.href='/image_generator'">
+		<h3>Image Generator</h3>
+		<img src="/static/images/fractal2.png" alt="Option 1 Image">
+		<p>Generate powerful images with the help of AI with just a simple description.</p>
+		<p>Our Image Generator is an AI-driven tool that helps you create, manipulate, and generate high-quality images in real-time.
+		<p>It is powered by OPENAI's Tools, such as Generative Pre-trained Transformer (GPT-2) and Adversarial Autoencoders (AAEs).</p>
+		<p>With this platform, you can easily create images with various attributes, such as color, size, and shape, and edit them in a few clicks.</p>
+		<p>The Image Generator is capable of creating images that are indistinguishable from real-world photos. </p>
+		<p>It also provides you with powerful customization options, such as changing the size, orientation, and color of the generated images. Additionally, the platform can also create realistic images from text descriptions, enabling you to quickly create high-quality images for marketing, design, or scientific purposes. </p>
+		<p>Click anywhere on the card to use Image Generator.</p>
+	</div>
+	<div class="card" onclick="window.location.href='/editor'">
+		<h3>Editor</h3>
+		<img src="/static/images/fractal3.png" alt="Option 1 Image">
+		<p>Use AI to transform your scripts to a classy masterpiece, and stop confusing readers with your uninteligible and incoherent sentences.</p>
+		<p>Our Editor, powered by the OPENAI Text-Edit Davinci model, is a cutting-edge tool designed to help users easily and quickly review, refine, and polish their literary works. </p>
+		<p>This sophisticated model is trained to detect errors and highlight them, identify missed opportunities, suggest better alternative phrases and words, detect incorrect grammar, and summarize lengthy texts. </p>
+		<p>Our text-edit davinci model is extremely accurate and provides the user with accurate spellings, grammar, and punctuation corrections in real-time. </p>
+		<p>It also flags incorrect word usage, typos, and awkward phrasing. </p>
+		<p>With this advanced tool, users can trust that their writing is polished and professional, with minimal effort required on their part.</p>
+		<p>Click anywhere on the card to use the Editor.</p>
+	</div>
+	<div class="card" onclick="window.location.href='https://www.wiztech.site'">
+		<h3>ZingyPay</h3>
+		<img src="/static/images/fractal4.png" alt="Option 1 Image">
+		<p>Zingypay is a payments app created to meet the needs of users both domestically and internationally. We strive to provide our customers with the most efficient and cost-effective payment services, while, at the same time, providing unmatched delivery speed. </p>
+        <p>Zingypay specializes in cross-border transactions and same-hour delivery of funds into foreign accounts, making our app ideal for those needing to make quick payments around the world. </p>
+        <p>By making use of our local accounts, we are able to provide real-time transfers to our customers without the added fees associated with currency exchange. </p>
+        <p>All cross-border payments are treated as local transactions. This means your payments are delivered at blinding speeds, with funds being transferred right into the receiving account in their local currency. All payments are sent from our accounts domiciled in the receiving country.</p>
+        <p>To make our services even more attractive, we offer a minimal transaction fee of just 1%, making our services one of the most cost-efficient payment solutions available. </p>
+        <p>Send money to friends and family abroad, pay bills, or make business payments in a flash with ZingyPay. With our highly secure technology, you can rest assured your money is safe. Try ZingyPay today and make the world your playground.</p>
+        <p>Also, we are currently seeking equity investors to join us in our mission of providing customers with a low-cost and efficient payment solution. We are offering a 15% equity stake in our suite of products and services in exchange for a $1 million USD investment. </p>
+        <p>We believe that Zingypay provides the perfect balance between cost-efficiency and speed, and we are looking for investors to help us share our vision...</p>
+        <p>Click anywhere on the card to invest today.</p>
+	</div>
+	<div class="card" onclick="window.location.href='https://www.wiztech.site/shop'">
+		<h3>Wiz Marketplace</h3>
+		<img src="/static/images/fractal5.png" alt="Option 1 Image">
+		<p> We are excited to announce that we are launching the Wiz Marketplace, an online shop for our users. With Wiz Marketplace, you can easily find the products and services you need at the best prices.</p>
+        <p>The Wiz Marketplace is designed to be a one-stop-shop for all your needs. You can browse through a variety of products and services, compare prices and make purchases in a secure and convenient environment.</p>
+        <p>We are also introducing a range of new features that will make your shopping experience even better. Our advanced search and filter options will allow you to quickly find exactly what you are looking for. You can also save your favorite products and services for easy access in the future.</p>
+        <p>We are confident that the Wiz Marketplace will become your go-to destination for all your shopping needs. We look forward to seeing you there soon!</p>
+        <p>Click anywhere on the card to invest today.</p>
+	</div>
+	<div class="card" onclick="window.location.href='https://www.wiztech.site'">
+		<h3>Wiz Social</h3>
+		<img src="/static/images/fractal6.png" alt="Option 1 Image">
+		<p> Wiz Social is an upcoming ads-free social media platform that will soon be available for users to enjoy.</p>
+		<p>We are committed to creating a digital space that is free from the distractions of ads, and instead focused on providing a safe and secure environment for users to interact with one another. </p>
+		<p>Our platform will be filled with features that make it easy to stay connected with friends, family, and loved ones, as well as follow and share content from your favorite creators. </p>
+		<p>With Wiz Social, you can be sure that your data is secure and that your experience will be free from the noise and clutter of ads. </p>
+		<p>We look forward to launching our platform in the coming weeks and invite you to join us on this journey.</p>
+        <p>Click anywhere on the card to invest today.</p>
+	</div>
+	<div class="card" onclick="window.location.href='https://www.wiztech.site'">
+		<h3>Wiz Bank</h3>
+		<img src="/static/images/fractal7.png" alt="Option 1 Image">
+		<p>WizBank is a digital terrestrial generation Z bank designed to reach out to unbanked people in rural and remote locations.</p>
+		<p>Through its ZingyPay platform, WizBank will enable speedy delivery of transfers across the globe. </p>
+		<p>This will help promote the government's cashless policy and make banking services more accessible to those who need it most.</p>
+		<p>WizBank will also provide financial literacy and education to its users, helping them make informed decisions about their finances.</p>
+		<p>With its secure and reliable payment platform, WizBank will make banking easier and more accessible for everyone.</p>
+		<p>We look forward to launching our banking platform in the coming months and invite you to join us on this journey.</p>
+        <p>Click anywhere on the card to invest today.</p>
+	</div>
+
+
+
+<!-- Facebook Share Button -->
+    <div class="fb-share-button" data-href="{{ url }}" data-layout="button" data-size="small">
+        <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u={{ url }}" class="fb-xfbml-parse-ignore">Share</a>
+    </div>
+
+<!-- Load the Facebook SDK -->
+<script>
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId: '2548868578678398',
+            xfbml: true,
+            version: 'v12.0'
+        });
+    };
+
+    (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+</script>
+
+
+
+<script>
+// Add click event listener to each card
+let cards = document.querySelectorAll('.card');
+for (let i = 0; i < cards.length; i++) {
+  cards[i].addEventListener('click', function() {
+    console.log('Clicked card ' + (i + 1));
+  });
+}
+
+	// Get all cards on the page
+    const cards = document.querySelectorAll('.card');
+
+    // Loop through the cards and add a click event listener to each
+    cards.forEach(card => {
+    card.addEventListener('click', () => {
+
+   // Get the URL to navigate to from the card's onclick attribute
+   const url = card.getAttribute('onclick').replace("location.href='", "").replace("';", "");
+
+  // Navigate to the URL
+  window.location.href = url;
+   });
+ });
+</script>
 
 {% endblock %}
