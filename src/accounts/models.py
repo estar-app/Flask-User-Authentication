@@ -35,7 +35,7 @@ class Message(db.Model):
     user_message = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-    bot_response = db.Column(db.Text)
+    response = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     text = db.Column(db.String(255))
 
@@ -48,7 +48,7 @@ class Message(db.Model):
             self.created_at = created_at
 
     def __repr__(self):
-        return f"Message(id={self.id}, user_message={self.user_message}, bot_response={self.bot_response})"
+        return f"Message(id={self.id}, user_message={self.user_message}, response={self.response})"
 
 
 class ChatHistory(db.Model):

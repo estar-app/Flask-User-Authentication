@@ -49,4 +49,4 @@ gtts
 pyttsx3
 ffmpeg
 SpeechRecognition
-
+ boto3

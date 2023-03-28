@@ -10,7 +10,7 @@ import speech_recognition as sr
 from io import BytesIO
 
 
-from flask import Flask, render_template, request, jsonify, Response, redirect, url_for,  render_template_string, send_file
+from flask import Flask, render_template, request, jsonify, Response, redirect, url_for,  render_template_string, send_file, make_response
 from flask_cors import CORS
 from gtts import gTTS
 from flask import session
@@ -93,7 +93,7 @@ def get_current_user_id():
         return None
 
 
-MODEL = "gpt-3.5-turbo-0301"
+MODEL = "gpt-3.5-turbo"
 
 
 
@@ -138,14 +138,9 @@ def generate_response(prompt, user_id):
         n=1,
         stop=None,
     )
+    return response.choices[0].message.content
 
-    response = response.choices[0].message.content
-    message.response = response
-    message.content = response
-    message.timestamp = datetime.utcnow()
-    db.session.commit()
 
-    return response
 
 
 @core_bp.route("/send_message", methods=["POST"])
@@ -155,6 +150,17 @@ def send_message():
         user_id = request.json["user_id"]
     except KeyError as e:
         return jsonify({"error": f"Missing key: {e.args[0]}"})
+
+        response = openai.ChatCompletion.create(
+        model=MODEL,
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.5,
+        max_tokens=3000,
+        n=1,
+        stop=None,
+    )
 
     response = generate_response(message, user_id=user_id)
     print(f"Generated response for user {user_id}: {response}")
@@ -216,7 +222,7 @@ def get_audio():
     filepath = os.path.join(app.static_folder, 'audio', filename)
     tts = gTTS(text=text)
     tts.save(filepath)
-    return {'audio_file_path': f'/static/audio/{filename}'}
+    return {'audio_file_path': f'/audio/{filename}'}
 
 
 @core_bp.route("/play-audio", methods=["POST"])
