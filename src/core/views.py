@@ -52,7 +52,7 @@ session = Session(app)
 from src.accounts.models import Message
 
 @core_bp.route("/")
-@login_required
+
 def home():  
     user_id = current_user.id
     
@@ -61,7 +61,7 @@ def home():
 
 
 @core_bp.route('/profile', methods=['GET', 'POST'])
-@login_required
+
 def profile():
     form = ChangePasswordForm(request.form)
     if form.validate_on_submit():
@@ -98,13 +98,13 @@ MODEL = "gpt-3.5-turbo"
 
 
 @core_bp.route('/examples')
-@login_required
+
 def examples():
     return render_template('core/home.html')
 
 
 @core_bp.route('/talkgpt')
-@login_required
+
 def talkgpt():
     # Retrieve all chat messages from the database
     messages = Message.query.order_by(Message.created_at.asc()).all()

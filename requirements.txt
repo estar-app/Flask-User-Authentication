@@ -45,3 +45,4 @@ ffmpeg
 SpeechRecognition
 
 boto3
+flask-session
