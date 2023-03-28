@@ -7,20 +7,25 @@ import pyttsx3
 import ffmpeg
 import requests
 import speech_recognition as sr
+from io import BytesIO
 
 
 from flask import Flask, render_template, request, jsonify, Response, redirect, url_for,  render_template_string, send_file
 from flask_cors import CORS
 from gtts import gTTS
 from flask import session
+from src.accounts.models import User
+from datetime import datetime, timedelta
+
+from flask_migrate import Migrate
 
 
 from flask import Blueprint
 from flask_login import login_required
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import current_user
-
-
+from src.accounts.models import db
+from flask_session import Session
 
 
 core_bp = Blueprint("core", __name__)
@@ -28,7 +33,17 @@ core_bp = Blueprint("core", __name__)
 # Create a Flask application
 app = Flask(__name__)
 
-db = SQLAlchemy()
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///myapp.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SESSION_TYPE'] = 'sqlalchemy'
+app.config['SESSION_SQLALCHEMY'] = db
+app.config['SESSION_SQLALCHEMY_TABLE'] = 'sessions'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=90)
+app.config['SECRET_KEY'] = 'fdkjshfhjsdfdskfdsfdcbsjdkfdsdf'
+
+
+db = SQLAlchemy(app)
+session = Session(app)
 db.init_app(app)
 
 
@@ -62,6 +77,21 @@ def profile():
     return render_template('user/profile.html', form=form)
 
 
+# Define the context processor to add chat history to all templates
+@core_bp.context_processor
+def inject_chat_history():
+    from src import db
+    from src.accounts.models import ChatHistory
+    history = db.session.query(ChatHistory).all()
+    return dict(chat_history=history)
+
+
+def get_current_user_id():
+    if current_user.is_authenticated:
+        return current_user.id
+    else:
+        return None
+
 
 MODEL = "gpt-3.5-turbo-0301"
 
@@ -91,9 +121,10 @@ def talkgpt():
     response = (completion.choices[0].message)
     return render_template("core/talkgpt.html", response=response, chat_history=chat_history)
 
+
 def generate_response(prompt, user_id):
     user = User.query.get(user_id)
-    message = Message(user_id=user.id, user_message=prompt, created_at=datetime.utcnow())
+    message = Message(user=user, user_message=prompt, created_at=datetime.utcnow())
     db.session.add(message)
     db.session.commit()
 
@@ -108,26 +139,28 @@ def generate_response(prompt, user_id):
         stop=None,
     )
 
-    bot_response = response.choices[0].text
-    message.bot_response = bot_response
-    message.content = bot_response
+    response = response.choices[0].message.content
+    message.response = response
+    message.content = response
     message.timestamp = datetime.utcnow()
     db.session.commit()
 
-    return bot_response
+    return response
 
 
 @core_bp.route("/send_message", methods=["POST"])
 def send_message():
-    message = request.json["message"]
-    user_id = session.get("user_id")
-    response = generate_response(message, user_id)
-    
-    # Retrieve all chat messages from the database
-    messages = Message.query.order_by(Message.created_at.asc()).all()
-    chat_history = [{"id": m.id, "content": m.content} for m in messages]
-    
-    return jsonify({"message": response, "chat_history": chat_history})
+    try:
+        message = request.json["message"]
+        user_id = request.json["user_id"]
+    except KeyError as e:
+        return jsonify({"error": f"Missing key: {e.args[0]}"})
+
+    response = generate_response(message, user_id=user_id)
+    print(f"Generated response for user {user_id}: {response}")
+
+    return jsonify({"message": response})
+
 
 
 
@@ -154,14 +187,13 @@ def stream_response(prompt):
     return Response(generate(), mimetype="text/event-stream")
 
 
-
 def generate_audio_file(response_text):
     # Generate a unique filename for the audio file
     filename = str(uuid.uuid4()) + '.wav'
     file_path = os.path.join('audio', filename)
 
     # Generate the audio file using gTTS
-    tts = gTTS(response_text)
+    tts = gTTS(text=response_text)
     tts.save(file_path)
 
     # Return the filename so that it can be passed to the play_audio() function
@@ -176,14 +208,16 @@ def process_input():
     generate_audio_file(response_text)
     return jsonify({'text': response_text})
 
+
 @core_bp.route('/get-audio', methods=['POST'])
 def get_audio():
     text = request.json.get('text')
-    filename = f'{uuid.uuid4()}.mp3'
+    filename = str(uuid.uuid4()) + '.mp3'
     filepath = os.path.join(app.static_folder, 'audio', filename)
     tts = gTTS(text=text)
     tts.save(filepath)
-    return {'audio_file_path': f'audio/{filename}'}
+    return {'audio_file_path': f'/static/audio/{filename}'}
+
 
 @core_bp.route("/play-audio", methods=["POST"])
 def play_audio():
@@ -194,6 +228,7 @@ def play_audio():
     tts = gTTS(text=response, lang=language)
     tts.save(audio_path)
     return send_file(audio_path, as_attachment=True)
+
 
 def recognize_speech_from_mic():
     recognizer = sr.Recognizer()
@@ -225,8 +260,6 @@ def recognize_speech_from_mic():
         return {'success': False, 'error': 'API unavailable'}
 
 
-
-
 @core_bp.route('/mobile')
 @login_required
 def mobile():
@@ -249,32 +282,3 @@ def image_generator():
 @login_required
 def coder():
     return render_template('core/coder.html')
-
-@core_bp.route('/get_messages')
-def get_messages():
-    # get page number from request parameters
-    page = request.args.get('page', 1, type=int)
-    per_page = 10
-
-    # query chat history from database
-    messages = Message.query.order_by(Message.timestamp.desc()).paginate(page, per_page)
-
-    # format chat history as list of dictionaries
-    messages_list = []
-    for message in messages.items:
-        messages_list.append({
-            'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            'user': message.user,
-            'message': message.message
-        })
-
-    # create dictionary response
-    response = {
-        'messages': messages_list,
-        'prev_page': url_for('get_messages', page=messages.prev_num) if messages.has_prev else None,
-        'next_page': url_for('get_messages', page=messages.next_num) if messages.has_next else None
-    }
-
-    # return JSON response
-    return jsonify(response)
-

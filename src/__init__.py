@@ -4,9 +4,19 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime, timedelta
+
 
 app = Flask(__name__)
 app.config.from_object(config("APP_SETTINGS"))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///myapp.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SESSION_TYPE'] = 'sqlalchemy'
+
+app.config['SESSION_SQLALCHEMY_TABLE'] = 'sessions'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=90)
+app.config['SECRET_KEY'] = 'fdkjshfhjsdfdskfdsfdcbsjdkfdsdf'
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
