@@ -106,10 +106,6 @@ def examples():
 @core_bp.route('/talkgpt')
 
 def talkgpt():
-    # Retrieve all chat messages from the database
-    messages = Message.query.order_by(Message.created_at.asc()).all()
-    chat_history = [{"id": m.id, "content": m.content} for m in messages]
-
     completion = openai.ChatCompletion.create(
         model=MODEL,
         max_tokens=3000,
@@ -119,18 +115,12 @@ def talkgpt():
         messages=[{"role": "user", "content": "Hello!"}]
     )
     response = (completion.choices[0].message)
-    return render_template("core/talkgpt.html", response=response, chat_history=chat_history)
+    return render_template("core/talkgpt.html", response=response)
 
-
-def generate_response(prompt, user_id):
-    user = User.query.get(user_id)
-    message = Message(user=user, user_message=prompt, created_at=datetime.utcnow())
-    db.session.add(message)
-    db.session.commit()
-
+def generate_response(prompt):
     response = openai.ChatCompletion.create(
-        model=MODEL,
-        messages=[
+    model=MODEL,
+    messages=[
             {"role": "user", "content": prompt}
         ],
         temperature=0.5,
@@ -139,35 +129,14 @@ def generate_response(prompt, user_id):
         stop=None,
     )
     return response.choices[0].message.content
-
-
+    return response
 
 
 @core_bp.route("/send_message", methods=["POST"])
 def send_message():
-    try:
-        message = request.json["message"]
-        user_id = request.json["user_id"]
-    except KeyError as e:
-        return jsonify({"error": f"Missing key: {e.args[0]}"})
-
-        response = openai.ChatCompletion.create(
-        model=MODEL,
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.5,
-        max_tokens=3000,
-        n=1,
-        stop=None,
-    )
-
-    response = generate_response(message, user_id=user_id)
-    print(f"Generated response for user {user_id}: {response}")
-
+    message = request.json["message"]
+    response = generate_response(message)
     return jsonify({"message": response})
-
-
 
 
 def stream_response(prompt):
@@ -193,13 +162,37 @@ def stream_response(prompt):
     return Response(generate(), mimetype="text/event-stream")
 
 
+
+
+@core_bp.route('/mobile')
+def mobile():
+    
+    return render_template("core/mobile.html", response=response)
+
+
+@core_bp.route('/editor')
+def editor():
+
+    return render_template('core/editor.html')
+
+
+@core_bp.route('/image_generator')
+def image_generator():
+    return render_template('core/image_generator.html')
+
+
+@core_bp.route('/coder')
+def coder():
+    return render_template('core/coder.html')
+
+
 def generate_audio_file(response_text):
     # Generate a unique filename for the audio file
     filename = str(uuid.uuid4()) + '.wav'
     file_path = os.path.join('audio', filename)
 
     # Generate the audio file using gTTS
-    tts = gTTS(text=response_text)
+    tts = gTTS(response_text)
     tts.save(file_path)
 
     # Return the filename so that it can be passed to the play_audio() function
@@ -214,16 +207,14 @@ def process_input():
     generate_audio_file(response_text)
     return jsonify({'text': response_text})
 
-
 @core_bp.route('/get-audio', methods=['POST'])
 def get_audio():
     text = request.json.get('text')
-    filename = str(uuid.uuid4()) + '.mp3'
+    filename = f'{uuid.uuid4()}.mp3'
     filepath = os.path.join(app.static_folder, 'audio', filename)
     tts = gTTS(text=text)
     tts.save(filepath)
-    return {'audio_file_path': f'/audio/{filename}'}
-
+    return {'audio_file_path': f'/static/audio/{filename}'}
 
 @core_bp.route("/play-audio", methods=["POST"])
 def play_audio():
@@ -234,7 +225,6 @@ def play_audio():
     tts = gTTS(text=response, lang=language)
     tts.save(audio_path)
     return send_file(audio_path, as_attachment=True)
-
 
 def recognize_speech_from_mic():
     recognizer = sr.Recognizer()
@@ -265,26 +255,3 @@ def recognize_speech_from_mic():
         # API was unreachable or unresponsive
         return {'success': False, 'error': 'API unavailable'}
 
-
-@core_bp.route('/mobile')
-@login_required
-def mobile():
-    
-    return render_template("core/mobile.html")
-
-@core_bp.route('/editor')
-@login_required
-def editor():
-    return render_template('core/editor.html')
-
-
-@core_bp.route('/image_generator')
-@login_required
-def image_generator():
-    return render_template('core/image_generator.html')
-
-
-@core_bp.route('/coder')
-@login_required
-def coder():
-    return render_template('core/coder.html')
