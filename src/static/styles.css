@@ -1,6 +1,6 @@
 /* Set some basic styles */
 body {
-    background-color: #0a5766;
+    background-color: hsl(180, 7%, 5%);
     font-family: Arial, sans-serif;
     display: flex;
     flex-direction: column;
@@ -38,7 +38,7 @@ main {
 
 .header {
   /* Set default styles */
-  background-color: #333;
+  background-color: #837c7c;
   color: #fff;
   font-size: 24px;
   justify-content: center;
