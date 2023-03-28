@@ -44,7 +44,7 @@ app.config['SECRET_KEY'] = 'fdkjshfhjsdfdskfdsfdcbsjdkfdsdf'
 
 db = SQLAlchemy(app)
 session = Session(app)
-db.init_app(app)
+
 
 
 
