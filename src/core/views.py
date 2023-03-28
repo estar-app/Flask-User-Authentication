@@ -54,10 +54,8 @@ from src.accounts.models import Message
 @core_bp.route("/")
 
 def home():  
-    user_id = current_user.id
     
-    messages = Message.query.filter_by(user_id=user_id).all()
-    return render_template("core/index.html", user_id=user_id, messages=messages)
+    return render_template("core/index.html")
 
 
 @core_bp.route('/profile', methods=['GET', 'POST'])
@@ -167,7 +165,7 @@ def stream_response(prompt):
 @core_bp.route('/mobile')
 def mobile():
     
-    return render_template("core/mobile.html", response=response)
+    return render_template("core/mobile.html")
 
 
 @core_bp.route('/editor')
